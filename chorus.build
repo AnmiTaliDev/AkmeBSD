@@ -1,0 +1,236 @@
+variables:
+  CC: gcc
+  ASM: nasm
+  LD: ld
+  GRUB_MKRESCUE: grub-mkrescue
+  QEMU: qemu-system-x86_64
+  CFLAGS: -I./include/ -I./ -fno-stack-protector -m64 -mcmodel=large -nostdlib -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -c
+  ASMFLAGS: -f elf64
+  LDFLAGS: -nostdlib -m elf_x86_64 -T link.ld -z noexecstack
+  BUILD_DIR: build
+  OBJ_DIR: build/objects
+  KERNEL_OUT: kernel.bin
+  DATE: "$(date +%Y-%m-%d)"
+
+targets:
+  all:
+    deps: [iso]
+
+  prepare:
+    deps: []
+    cmds:
+      - "mkdir -p dist"
+      - "find . -iname '*.c' -exec dirname {} \\; | uniq | sed 's/\\.\\///g' | xargs printf -- '${OBJ_DIR}/%s\\n' | xargs mkdir -p"
+
+  kernel.bin:
+    deps: [prepare, core/arch/boot, core/kernel/kernel, core/kernel/kstd, core/arch/spinlock, core/kernel/mem/buddy, core/kernel/mem/allocator,
+        core/kernel/vge/fb, core/kernel/vge/fb_render, core/drivers/keyboard, core/drivers/serial,
+        core/fs/iso9660, core/drivers/cdrom, core/kernel/vge/psf, core/fs/vfs]
+    cmds:
+      - "mkdir -p ${BUILD_DIR}/boot"
+      - "${LD} ${LDFLAGS} -o ${BUILD_DIR}/boot/${@} $(echo ${^} | xargs | cut -d ' ' -f2- | xargs printf -- '${OBJ_DIR}/%s.o\\n' | xargs)"
+      - "cp -r ./limine/* ${BUILD_DIR}/boot"
+
+  core/arch/boot:
+    deps: []
+    cmds:
+      - "${ASM} ${ASMFLAGS} ${@}.asm -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/kernel:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/kstd:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/arch/spinlock:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/mem/buddy:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/mem/allocator:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/nvm/syscalls:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/nvm/caps:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/vge/fb:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/vge/fb_render:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/vge/psf:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/drivers/timer:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/drivers/serial:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/drivers/keyboard:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/drivers/cdrom:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/shell:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+      
+  core/fs/ramfs:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/fs/initramfs:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/fs/iso9660:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+      
+  core/fs/vfs:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/fs/procfs:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/fs/devfs:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/arch/cpuid:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/kernel/userspace:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rootfs/usr/src/userspace_init:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rootfs/usr/src/echo:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rootfs/usr/src/clear:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rootfs/usr/src/rm:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rootfs/usr/src/write:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rootfs/usr/src/nova:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rootfs/usr/src/uname:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/crypto/chacha20:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/crypto/chacha20_rng:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  core/arch/entropy:
+    deps: []
+    cmds:
+      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
+
+  rebuild-initramfs:
+    phony: true
+    cmds:
+      - "ruby initramfs-rebuild.rb"
+
+  iso:
+    deps: [prepare, kernel.bin]
+    cmds:
+      - "xorriso -as mkisofs -quiet -iso-level 3 -o ${BUILD_DIR}/boot/rootfs.img rootfs/"
+      - "xorriso -as mkisofs -b limine-bios-cd.bin -no-emul-boot -boot-load-size 4 -boot-info-table --protective-msdos-label -iso-level 3 -partition_offset 64 -quiet -o dist/build_${DATE}.iso ${BUILD_DIR}/boot/"
+      - "limine bios-install dist/build_${DATE}.iso"
+
+  run:
+    phony: true
+    cmds:
+      - "${QEMU} -m 1024M -serial file:qemu.log -cdrom dist/build_${DATE}.iso -cpu core2duo"
+  
+  build-release:
+    phony: true
+    deps: [prepare, kernel.bin]
+    cmds:
+      - |
+        if [ "${OS_STAGE}" != "RELEASE" ]; then
+          echo "✗ build-release forbidden: OS_STAGE=${OS_STAGE}. Set OS_STAGE=RELEASE"
+          exit 1
+        fi
+      - >
+        sh -c 'mkdir -p rootfs/etc && echo
+        "NAME=${OS_NAME}\nVERSION=\"${OS_VERSION}\"\nID=${OS_ID}\nANSI_COLOR=\"${OS_COLOR}\"\nPRETTY_NAME=\"${OS_NAME} ${OS_VERSION}-RELEASE\"\nHOME_URL=\"https://novariaos.github.io/\"\nBUG_REPORT_URL=\"https://github.com/novariaos/novariaos-src/issues\"" 
+        > rootfs/etc/os-release'
+      - "xorriso -as mkisofs -quiet -iso-level 3 -o ${BUILD_DIR}/boot/rootfs.img rootfs/"
+      - "xorriso -as mkisofs -b limine-bios-cd.bin -no-emul-boot -boot-load-size 4 -boot-info-table --protective-msdos-label -iso-level 3 -partition_offset 64 -quiet -o dist/${OS_NAME}-${OS_VERSION}-${OS_STAGE}-amd64-memstick.iso ${BUILD_DIR}/boot/"
+      - "limine bios-install dist/${OS_NAME}-${OS_VERSION}-${OS_STAGE}-amd64-memstick.iso"
