@@ -17,10 +17,11 @@ https://github.com/novariaos/novariaos-src
 #include <core/kernel/log.h>
 #include <core/fs/iso9660.h>
 #include <core/fs/vfs.h>
-#include <lib/logo/logo.h>
+#include <lib/logo.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <lib/bootloader/limine.h>
+#include <lib/limine.h>
+#include <core/kernel/exec.h>
 
 static volatile struct limine_module_request module_request = {
     .id = { LIMINE_COMMON_MAGIC, 0x3e7e279702be32af, 0xca1c4f3bd1280cee },
@@ -116,5 +117,13 @@ void kmain() {
     draw_logo_row(logo, LOGO_HEIGHT, LOGO_WIDTH, NULL);
 
     kprint("\n\n\n\n\n\n\n\n", 15);
-    kprint(":: Base kernel initialization comeplete", 7);
+    kprint(":: Base kernel initialization comeplete\n", 7);
+
+    int result = vfs_run_elf_simple("/bin/test");
+    
+    if (result == 0) {
+        LOG_INFO("Program started successfully\n");
+    } else {
+        LOG_ERROR("Failed to start program: error %d\n", result);
+    }
 }

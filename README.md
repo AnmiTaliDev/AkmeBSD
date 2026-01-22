@@ -7,7 +7,7 @@
 
 # The main goal
 - [ ] Preemptive multitasking
-- [ ] ELF executable loader
+- [ ] ELF executable loader (WIP. Current stage — running in Ring0)
 - [ ] Minimal syscall API
 - [ ] Port some minimal shell
 

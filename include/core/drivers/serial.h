@@ -1,8 +1,6 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include <core/kernel/kstd.h>
-
 #define PORT 0x3f8 // COM1
 
 char read_serial();

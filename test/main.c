@@ -5,9 +5,23 @@ See LICENSE in the root of the repository.
 https://github.com/novariaos/novariaos-src
 */
 
-#include <core/drivers/serial.h>
+
+#include <core/kernel/vge/fb_render.h>
 #include <core/kernel/kstd.h>
-#include <core/arch/io.h>
+#include <core/kernel/exec.h>
+#include <stdint.h>
+
+#define PORT 0x3f8 // COM1
+
+static inline uint8_t inb(uint16_t port) {
+    uint8_t res;
+    __asm__("inb %w1, %b0" : "=a"(res) : "Nd"(port) : "memory");
+    return res;
+}
+
+static inline void outb(uint16_t port, uint8_t val) {
+    __asm__("outb %b0, %w1" : : "a"(val), "Nd"(port) : "memory");
+}
 
 int init_serial() {
     outb(PORT + 1, 0x00);    // Disable all interrupts
@@ -28,7 +42,6 @@ int init_serial() {
     // If serial is not faulty set it in normal operation mode
     // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
     outb(PORT + 4, 0x0F);
-    kprint(":: Serial initialized\n", 7);
     
     return 0;
 }
@@ -57,4 +70,10 @@ void serial_print(const char* str) {
     while (*str) {
         write_serial(*str++);
     }
+}
+
+
+void _start() {
+    serial_print("Work!!!\n");
+    return;
 }

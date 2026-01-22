@@ -24,8 +24,8 @@ targets:
 
   kernel.bin:
     deps: [prepare, core/arch/boot, core/kernel/kernel, core/kernel/kstd, core/arch/spinlock, core/kernel/mem/buddy, core/kernel/mem/allocator,
-        core/kernel/vge/fb, core/kernel/vge/fb_render, core/drivers/keyboard, core/drivers/serial,
-        core/fs/iso9660, core/drivers/cdrom, core/kernel/vge/psf, core/fs/vfs]
+        core/kernel/vge/fb, core/kernel/vge/fb_render, core/drivers/keyboard, core/drivers/serial, core/fs/iso9660, core/drivers/cdrom,
+        core/kernel/vge/psf, core/fs/vfs, core/kernel/elf_parser, core/kernel/exec]
     cmds:
       - "mkdir -p ${BUILD_DIR}/boot"
       - "${LD} ${LDFLAGS} -o ${BUILD_DIR}/boot/${@} $(echo ${^} | xargs | cut -d ' ' -f2- | xargs printf -- '${OBJ_DIR}/%s.o\\n' | xargs)"
@@ -61,16 +61,6 @@ targets:
     cmds:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
 
-  core/kernel/nvm/syscalls:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  core/kernel/nvm/caps:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
   core/kernel/vge/fb:
     deps: []
     cmds:
@@ -82,11 +72,6 @@ targets:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
 
   core/kernel/vge/psf:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  core/drivers/timer:
     deps: []
     cmds:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
@@ -106,21 +91,6 @@ targets:
     cmds:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
 
-  core/kernel/shell:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-      
-  core/fs/ramfs:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  core/fs/initramfs:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
   core/fs/iso9660:
     deps: []
     cmds:
@@ -131,83 +101,30 @@ targets:
     cmds:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
 
-  core/fs/procfs:
+  core/kernel/elf_parser:
     deps: []
     cmds:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
 
-  core/fs/devfs:
+  core/kernel/exec:
     deps: []
     cmds:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
 
-  core/arch/cpuid:
+  test/main:
     deps: []
     cmds:
       - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
 
-  core/kernel/userspace:
-    deps: []
+  test.elf:
+    deps: [test/main]
     cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rootfs/usr/src/userspace_init:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rootfs/usr/src/echo:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rootfs/usr/src/clear:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rootfs/usr/src/rm:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rootfs/usr/src/write:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rootfs/usr/src/nova:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rootfs/usr/src/uname:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  core/crypto/chacha20:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  core/crypto/chacha20_rng:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  core/arch/entropy:
-    deps: []
-    cmds:
-      - "${CC} ${CFLAGS} ${@}.c -o ${OBJ_DIR}/${@}.o"
-
-  rebuild-initramfs:
-    phony: true
-    cmds:
-      - "ruby initramfs-rebuild.rb"
+      - "${LD} -nostdlib -m elf_x86_64 -T user.ld -o ${BUILD_DIR}/test.elf ${OBJ_DIR}/test/main.o"
+      - "mkdir -p rootfs/bin"
+      - "cp ${BUILD_DIR}/test.elf rootfs/bin/test"
 
   iso:
-    deps: [prepare, kernel.bin]
+    deps: [prepare, kernel.bin, test.elf]
     cmds:
       - "xorriso -as mkisofs -quiet -iso-level 3 -o ${BUILD_DIR}/boot/rootfs.img rootfs/"
       - "xorriso -as mkisofs -b limine-bios-cd.bin -no-emul-boot -boot-load-size 4 -boot-info-table --protective-msdos-label -iso-level 3 -partition_offset 64 -quiet -o dist/build_${DATE}.iso ${BUILD_DIR}/boot/"

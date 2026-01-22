@@ -8,12 +8,12 @@ https://github.com/novariaos/novariaos-src
 #include <core/kernel/log.h>
 #include <core/kernel/kstd.h>
 #include <core/kernel/vge/fb_render.h>
-#include <lib/bootloader/limine.h>
+#include <lib/limine.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include <lib/logo/logo.h>
+#include <lib/logo.h>
 
 #define FONT_HEIGHT 16
 
@@ -338,23 +338,23 @@ void vgaprint(const char *str, int color) {
     uint32_t fb_color;
 
     switch (color & 0xF) {
-        case 0:  fb_color = 0x00101010; break; // black
-        case 1:  fb_color = 0x003b5bdb; break; // blue
-        case 2:  fb_color = 0x0031a354; break; // green
-        case 3:  fb_color = 0x0030a0a0; break; // cyan
-        case 4:  fb_color = 0x00c34043; break; // red
-        case 5:  fb_color = 0x007b3fb2; break; // magenta
-        case 6:  fb_color = 0x00b58900; break; // brown / yellow
-        case 7:  fb_color = 0x00c0c0c0; break; // light gray
+        case 0:  fb_color = 0x00000000; break; // Black
+        case 1:  fb_color = 0x000000AA; break; // Dark Blue
+        case 2:  fb_color = 0x0000AA00; break; // Dark Green
+        case 3:  fb_color = 0x0000AAAA; break; // Dark Cyan
+        case 4:  fb_color = 0x00AA0000; break; // Dark Red
+        case 5:  fb_color = 0x00AA00AA; break; // Dark Magenta
+        case 6:  fb_color = 0x00AA5500; break; // Brown/Dark Yellow
+        case 7:  fb_color = 0x00AAAAAA; break; // Light Gray
 
-        case 8:  fb_color = 0x00505050; break; // dark gray
-        case 9:  fb_color = 0x006a8cff; break; // bright blue
-        case 10: fb_color = 0x0057d18b; break; // bright green
-        case 11: fb_color = 0x005fd7d7; break; // bright cyan
-        case 12: fb_color = 0x00ff6b6b; break; // bright red
-        case 13: fb_color = 0x00c77dff; break; // bright magenta
-        case 14: fb_color = 0x00ffd866; break; // bright yellow
-        case 15: fb_color = 0x00f2f2f2; break; // white
+        case 8:  fb_color = 0x00555555; break; // Dark Gray
+        case 9:  fb_color = 0x005555FF; break; // Bright Blue
+        case 10: fb_color = 0x0055FF55; break; // Bright Green
+        case 11: fb_color = 0x0055FFFF; break; // Bright Cyan
+        case 12: fb_color = 0x00FF5555; break; // Bright Red
+        case 13: fb_color = 0x00FF55FF; break; // Bright Magenta
+        case 14: fb_color = 0x00FFFF55; break; // Bright Yellow
+        case 15: fb_color = 0x00FFFFFF; break; // White
     }
 
     while (*str) {
