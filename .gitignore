@@ -1,6 +1,24 @@
-build/
+# Zig build artifacts
+.zig-cache/
+zig-out/
+zig-cache/
+
+# Distribution output
 dist/
+
+# Generated rootfs binaries (copied from build)
 rootfs/bin/
-.cache/
+
+# QEMU logs
 *.log
-compile_commands.json
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

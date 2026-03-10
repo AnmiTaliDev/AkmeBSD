@@ -1,15 +1,27 @@
-<img src="img/logo.png" width="100" />
+# AkmeBSD
 
-# MoskoviumBSD
+AkmeBSD started as a fork of [MoskoviumBSD](https://github.com/z3nnix/MoskoviumBSD) by z3nnix —
+an educational x86-64 kernel written in C. The original project was a solid foundation for
+exploring how a real OS works, but it was always meant to be archived once its goals were met.
+
+This fork takes a different path: AkmeBSD will be developed independently as a long-term project,
+carrying forward the BSD philosophy of simplicity, clarity, and self-sufficiency into the osdev sphere.
+
 
 > [!CAUTION]
-> Listen, this operating system is a true educational project. I've never worked on a purely educational project before, but I think this is an exception. My primary motivation is study "how mainstream OS is really work?". Anyway, I'll work on this project to achieve the main goal and archive it.
+> This is a purely educational project. No production use is intended.
 
-# The main goal
-- [X] ELF executable loader
-- [ ] Minimal syscall API
-- [ ] Preemptive multitasking
-- [ ] Switch to ring3
-- [ ] Port some minimal shell
+---
 
-That's all what I plan to implement. For others I'll reuse component from my other project — [NovariaOS](https://github.com/novariaos/src) (of course, different license but in MoskoviumBSD I'll use only files, that never get contribute)
+## Philosophy
+
+Zig aligns naturally with BSD values: no hidden control flow, no implicit allocations, explicit
+error handling, and `comptime` as a powerful zero-cost abstraction. The language treats the
+programmer as someone who wants to know exactly what the machine is doing — which is precisely
+the point of this project.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
