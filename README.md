@@ -1,26 +1,36 @@
 # AkmeBSD
 
-AkmeBSD started as a fork of [MoskoviumBSD](https://github.com/z3nnix/MoskoviumBSD) by z3nnix —
-an educational x86-64 kernel written in C. The original project was a solid foundation for
-exploring how a real OS works, but it was always meant to be archived once its goals were met.
+![License](https://img.shields.io/github/license/AnmiTaliDev/AkmeBSD)
+![Language](https://img.shields.io/badge/language-Zig%200.15-f7a41d)
+![Status](https://img.shields.io/badge/status-experimental-orange)
 
-This fork takes a different path: AkmeBSD will be developed independently as a long-term project,
-carrying forward the BSD philosophy of simplicity, clarity, and self-sufficiency into the osdev sphere.
+An educational kernel written in Zig. Forked from
+[MoskoviumBSD](https://github.com/z3nnix/MoskoviumBSD) by z3nnix and rewritten from scratch.
 
+## Requirements
 
-> [!CAUTION]
-> This is a purely educational project. No production use is intended.
+- [Zig](https://ziglang.org/) 0.15
+- `xorriso`
+- `limine` CLI
+- QEMU (for `zig build run`)
 
----
+## Building
+
+```sh
+zig build        # produces dist/akme-amd64.iso
+zig build run    # boots in QEMU
+```
+
+Release ISO:
+
+```sh
+OS_STAGE=RELEASE chorus build build-release
+```
 
 ## Philosophy
 
-Zig aligns naturally with BSD values: no hidden control flow, no implicit allocations, explicit
-error handling, and `comptime` as a powerful zero-cost abstraction. The language treats the
-programmer as someone who wants to know exactly what the machine is doing — which is precisely
-the point of this project.
-
----
+AkmeBSD follows the UNIX tradition in spirit: small, composable, and honest about what it does.
+BSD taught that an OS can be a coherent whole built by people who understand it end to end.
 
 ## License
 
